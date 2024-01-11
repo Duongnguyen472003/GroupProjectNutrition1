@@ -4,7 +4,6 @@ import React from 'react';
 // Routes
 import AppRoutes from './routes.jsx';
 
-
 const App = () => {
   return (
     <>

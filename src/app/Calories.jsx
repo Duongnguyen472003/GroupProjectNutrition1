@@ -2,19 +2,7 @@ import React, { useState } from 'react';
 //import axios from 'axios';
 import '../App.css';
 import CaloriesPopUp from './CaloriesPopUp';
-
-function Popup({ closePopup, adjustCalories }) {
-  return (
-    <div className="popup">
-      <h3>Adjust Calories</h3>
-      <button onClick={() => adjustCalories(1.1)}>Gain Weight</button>
-      <button onClick={() => adjustCalories(1)}>Maintain Weight</button>
-      <button onClick={() => adjustCalories(0.9)}>Lose Weight</button>
-      <button onClick={closePopup}>Close</button>
-    </div>
-  );
-}
-
+// import PropTypes from 'prop-types';
 
 function Calories() {
   const [weight, setWeight] = useState('');
@@ -24,9 +12,16 @@ function Calories() {
   const [activityLevel, setActivityLevel] = useState('sedentary');
   const [result, setResult] = useState('');
   const [show, setShow] = useState(false);
-  const adjustCalories = (factor) => {
+  const [waterIntake, setWaterIntake] = useState(0);
+  const [data, setData] = useState('');
+  const [result2, setResult2] = useState('');
+
+  const adjustCalories = (factor, test) => {
     // Logic để điều chỉnh calo dựa trên factor
     console.log(`Adjusting calories with factor: ${factor}`);
+    const res = factor * test;
+    console.log(res);
+    setResult2(`Energy needed is: ${res} calories/day`);
   };
   const togglePopup = () => {
     setShow(true);
@@ -71,33 +66,15 @@ function Calories() {
       }
 
       setResult(`Your TDEE is: ${tdee.toFixed(2)} calories/day`);
+      setData(tdee.toFixed(2));
+      // setResult2(res);
+
+      const waterIntake = Math.round((weight * 0.03) * 100) / 100;
+      setWaterIntake(waterIntake);
     } else {
       alert('Please enter all the required information.');
     }
   };
-
-/*  const test = async () => {
-    const options = {
-      method: 'GET',
-      url: 'https://edamam-food-and-grocery-database.p.rapidapi.com/api/food-database/v2/parser',
-      params: {
-        'nutrition-type': 'cooking',
-        'category[0]': 'generic-foods',
-        'health[0]': 'alcohol-free'
-      },
-      headers: {
-        'X-RapidAPI-Key': 'b9d796f5dcmsh1fed08792e27c92p1402d5jsnbe0a418715cd',
-        'X-RapidAPI-Host': 'edamam-food-and-grocery-database.p.rapidapi.com'
-      }
-    };
-
-    try {
-      const response = await axios.request(options);
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }; */
 
   return (
     <div className="calculator-container">
@@ -158,13 +135,15 @@ function Calories() {
       <CaloriesPopUp
         show={show}
         handleClose={handleClose}
-        calculateBMIandBMR={calculateBMIandBMR}  // Truyền hàm calculateBMIandBMR vào prop
-        gender={gender}
-        activityLevel={activityLevel}
+        data={data}
         adjustCalories={adjustCalories}
       />
       <div id="result">{result}</div>
 
+      {waterIntake > 0 && (
+        <p>Your daily water intake is {waterIntake} liters.</p>
+      )}
+      <div>{result2}</div>
     </div>
   );
 }
