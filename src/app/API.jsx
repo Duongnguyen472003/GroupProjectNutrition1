@@ -1,47 +1,10 @@
-// import React, { useState, useEffect } from "react";
-// import { fetchFood } from "../service/foodService";
-
-// const FoodApiComponent = () => {
-//   const [apiData, setApiData] = useState();
-//   // const [error, setError] = useState(null);
-//   const [food, setFood] = useState();
-
-//   const displayData = async () => {
-//     try {
-//       const res = await fetchFood(food, "en");
-//       console.log(res);
-//       setApiData(res.dishes[0].caloric);
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <label htmlFor="searchFood">Search</label>
-//         <input
-//           name="food"
-//           type="text"
-//           id="FoodSearch"
-//           placeholder="Food Search"
-//           aria-describedby="searchFoord"
-//           onChange={(event) => setFood(event.target.value)}
-//         />
-//         <button className="bg-red-500 text-white rounded-lg w-[70px]" onClick={displayData}>Search</button>
-//         <p>{apiData}</p>
-//     </div>
-//   );
-// };
-
-// export default FoodApiComponent;
-
-
 import React, { useState } from "react";
 import { fetchFood } from "../service/foodService";
 
 const FoodApiComponent = () => {
   const [apiData, setApiData] = useState({});
   const [food, setFood] = useState("");
+  const [searchHistory, setSearchHistory] = useState([]);
 
   const displayData = async () => {
     try {
@@ -61,6 +24,17 @@ const FoodApiComponent = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const addToSearchHistory = () => {
+    if (apiData.name) {
+      setSearchHistory([...searchHistory, apiData]);
+      setApiData({}); // Clear apiData after adding to search history
+    }
+  };
+
+  const calculateTotalCalories = () => {
+    return searchHistory.reduce((totalCalories, item) => totalCalories + parseFloat(item.caloric), 0);
   };
 
   return (
@@ -86,6 +60,15 @@ const FoodApiComponent = () => {
         >
           Search
         </button>
+        {apiData.name && (
+          <button
+            type="button"
+            className="mt-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            onClick={addToSearchHistory}
+          >
+            Add to list
+          </button>
+        )}
       </div>
       {apiData.name && (
         <div className="mt-4">
@@ -104,10 +87,28 @@ const FoodApiComponent = () => {
           </p>
         </div>
       )}
+
+      {searchHistory.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold">Food picked:</h2>
+          <ul className="list-disc list-inside">
+            {searchHistory.map((item, index) => (
+              <li key={index}>
+                {item.name}: {item.caloric}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 font-semibold">Total Calories: {calculateTotalCalories()}</p>
+        </div>
+      )}
     </div>
   );
 };
 
 export default FoodApiComponent;
+
+
+
+
 
 
