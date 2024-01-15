@@ -5,6 +5,8 @@ const FoodApiComponent = () => {
   const [apiData, setApiData] = useState({});
   const [food, setFood] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
+  const [staticNumber, setStaticNumber] = useState(2000);
+  const [initialStaticNumber, setInitialStaticNumber] = useState(2000);
 
   const displayData = async () => {
     try {
@@ -29,6 +31,7 @@ const FoodApiComponent = () => {
   const addToSearchHistory = () => {
     if (apiData.name) {
       setSearchHistory([...searchHistory, apiData]);
+      setStaticNumber(staticNumber - parseFloat(apiData.caloric)); // Giảm giá trị staticNumber
       setApiData({}); // Clear apiData after adding to search history
     }
   };
@@ -37,8 +40,35 @@ const FoodApiComponent = () => {
     return searchHistory.reduce((totalCalories, item) => totalCalories + parseFloat(item.caloric), 0);
   };
 
+  const compareWithStaticNumber = () => {
+    if (calculateTotalCalories() > initialStaticNumber + 100) {
+      return "Too much calories.";
+    } else if (calculateTotalCalories() < initialStaticNumber - 100) {
+      return "Too little calories.";
+    } else {
+      return "great.";
+    }
+  };
+
+  // const removeFromSearchHistory = (index) => {
+  //   const updatedSearchHistory = [...searchHistory];
+  //   updatedSearchHistory.splice(index, 1);
+  //   setSearchHistory(updatedSearchHistory);
+  // };
+
+  const removeFromSearchHistory = (index) => {
+    const removedItem = searchHistory[index];
+    setSearchHistory((prevSearchHistory) => {
+      const updatedSearchHistory = [...prevSearchHistory];
+      updatedSearchHistory.splice(index, 1);
+      setStaticNumber((prevStaticNumber) => prevStaticNumber + parseFloat(removedItem.caloric)); // Cộng lại giá trị caloric
+      return updatedSearchHistory;
+    });
+  };
+
   return (
     <div className="max-w-md mx-auto mt-10 p-4 border border-gray-300 rounded-md">
+      <p className="text-lg font-semibold">Total energy needed: {initialStaticNumber} calories/day</p>
       <div className="flex flex-col">
         <label htmlFor="searchFood" className="block text-sm font-medium text-gray-700">
           Search
@@ -95,20 +125,25 @@ const FoodApiComponent = () => {
             {searchHistory.map((item, index) => (
               <li key={index}>
                 {item.name}: {item.caloric}
+                <button
+                  type="button"
+                  className="ml-2 text-sm text-red-500"
+                  onClick={() => removeFromSearchHistory(index)}
+                >
+                Remove
+          </button>
               </li>
             ))}
           </ul>
           <p className="mt-2 font-semibold">Total Calories: {calculateTotalCalories()}</p>
         </div>
       )}
+      <p>Total calories left: {staticNumber}</p>
+      <p>{compareWithStaticNumber()}</p>
     </div>
   );
 };
 
 export default FoodApiComponent;
-
-
-
-
 
 
